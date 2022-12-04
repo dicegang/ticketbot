@@ -2,6 +2,7 @@
   "name": "ticketbot",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "dependencies": {
     "ajv": "^8.11.2",
     "better-sqlite3": "^8.0.1",

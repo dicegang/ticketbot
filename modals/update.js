@@ -1,6 +1,6 @@
-const { updateNode, formatAncestry, getNode } = require('../db')
+import { updateNode, formatAncestry, getNode } from '../db.js'
 
-const execute = async (interaction, metadata) => {
+export const execute = async (interaction, metadata) => {
     const { nodeId } = JSON.parse(metadata)
     const name = interaction.fields.getTextInputValue('name')
     const description = interaction.fields.getTextInputValue('description')
@@ -12,7 +12,4 @@ const execute = async (interaction, metadata) => {
     })
 }
 
-module.exports = {
-    execute,
-    name: 'update',
-}
+export const name = 'update'

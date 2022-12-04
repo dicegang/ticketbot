@@ -1,22 +1,17 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js')
-const { makeMessage } = require('../menu')
-const { getRootNodeId, getNode } = require('../db')
+import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js'
+import { makeMessage } from '../menu.js'
+import { getRootNodeId, getNode } from '../db.js'
 
-const data = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
     .setName('menu')
     .setDescription('Send a help menu message')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
 
-const execute = async interaction => {
+export const execute = async interaction => {
     const message = makeMessage(getNode(getRootNodeId()))
     await interaction.channel.send(message)
     await interaction.reply({
         content: ':white_check_mark: Sent help menu message',
         ephemeral: true,
     })
-}
-
-module.exports = {
-    data,
-    execute,
 }

@@ -1,11 +1,11 @@
-const { SlashCommandBuilder } = require('discord.js')
-const { closeTicket } = require('../ticket')
+import { SlashCommandBuilder } from 'discord.js'
+import { closeTicket } from '../ticket.js'
 
-const data = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
     .setName('close')
     .setDescription('Close a ticket')
 
-const execute = async interaction => {
+export const execute = async interaction => {
     if (await closeTicket(interaction.channel)) {
         await interaction.reply({
             content: ':white_check_mark: Ticket closed!',
@@ -17,9 +17,4 @@ const execute = async interaction => {
             ephemeral: true,
         })
     }
-}
-
-module.exports = {
-    data,
-    execute,
 }

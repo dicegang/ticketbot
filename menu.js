@@ -1,7 +1,7 @@
-const { TextInputStyle, ModalBuilder, TextInputBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, StringSelectMenuBuilder } = require('discord.js')
-const { formatAncestry } = require('./db')
+import { TextInputStyle, ModalBuilder, TextInputBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, StringSelectMenuBuilder } from 'discord.js'
+import { formatAncestry } from './db.js'
 
-const makeModal = (node) => new ModalBuilder()
+export const makeModal = (node) => new ModalBuilder()
     .setCustomId('ticket:' + node.id)
     .setTitle('Create a ticket')
     .addComponents(
@@ -14,7 +14,7 @@ const makeModal = (node) => new ModalBuilder()
     )
 
 // make a message from a node
-const makeMessage = (node) => {
+export const makeMessage = (node) => {
     const embed = new EmbedBuilder()
         .setTitle(formatAncestry(node))
         .setDescription(node.description)
@@ -47,9 +47,4 @@ const makeMessage = (node) => {
         embeds: [embed],
         components: [row],
     }
-}
-
-module.exports = {
-    makeModal,
-    makeMessage,
 }

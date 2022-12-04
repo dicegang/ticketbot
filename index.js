@@ -1,8 +1,8 @@
-require('dotenv/config')
-const { Client, Events, GatewayIntentBits, REST, Routes } = require('discord.js')
-const { continueMenu, handleAutocomplete } = require('./interaction')
-const commands = require('./commands')
-const modals = require('./modals')
+import 'dotenv/config'
+import { Client, Events, GatewayIntentBits, REST, Routes } from 'discord.js'
+import { continueMenu, handleAutocomplete } from './interaction.js'
+import commands from './commands/index.js'
+import modals from './modals/index.js'
 
 const token = process.env.APP_DISCORD_TOKEN
 const client = new Client({

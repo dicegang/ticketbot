@@ -1,7 +1,7 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js')
-const { getNode, createSubscription, formatAncestry } = require('../db')
+import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js'
+import { getNode, createSubscription, formatAncestry } from '../db.js'
 
-const data = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
     .setName('subscribe')
     .setDescription('Subscribe to a ticket topic')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
@@ -16,7 +16,7 @@ const data = new SlashCommandBuilder()
         .setDescription('The user to subscribe (default you)')
     )
 
-const execute = async interaction => {
+export const execute = async interaction => {
     const nodeId = parseInt(interaction.options.getString('node'))
     const user = interaction.options.getUser('user') ?? interaction.user
     const result = await createSubscription(nodeId, user.id)
@@ -33,9 +33,4 @@ const execute = async interaction => {
         content: `:white_check_mark: Subscribed <@${user.id}> to \`${ancestry}\``,
         ephemeral: true,
     })
-}
-
-module.exports = {
-    data,
-    execute,
 }

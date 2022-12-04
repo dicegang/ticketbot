@@ -1,6 +1,6 @@
-const { SlashCommandBuilder, PermissionFlagsBits, TextInputBuilder, ModalBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js')
+import { SlashCommandBuilder, PermissionFlagsBits, TextInputBuilder, ModalBuilder, TextInputStyle, ActionRowBuilder } from 'discord.js'
 
-const data = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
     .setName('create')
     .setDescription('Create a ticket topic')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
@@ -24,7 +24,7 @@ const data = new SlashCommandBuilder()
         .setDescription('Whether this node should be shown in ancestry (default true)')
     )
 
-const execute = async interaction => {
+export const execute = async interaction => {
     const parentId = parseInt(interaction.options.getString('parent'))
     const kind = interaction.options.getString('kind')
     const significant = interaction.options.getBoolean('significant') ?? true
@@ -49,9 +49,4 @@ const execute = async interaction => {
             ),
         )
     await interaction.showModal(modal)
-}
-
-module.exports = {
-    data,
-    execute,
 }

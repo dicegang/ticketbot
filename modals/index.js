@@ -1,6 +1,6 @@
-const ticketModal = require('./ticket')
-const createModal = require('./create')
-const updateModal = require('./update')
+import * as ticketModal from './ticket.js'
+import * as createModal from './create.js'
+import * as updateModal from './update.js'
 
 const modals = [
     ticketModal,
@@ -8,4 +8,4 @@ const modals = [
     updateModal,
 ]
 
-module.exports = new Map(modals.map(c => [c.name, c]))
+export default new Map(modals.map(c => [c.name, c]))

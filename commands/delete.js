@@ -1,7 +1,7 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js')
-const { getNode, getRootNodeId, deleteNode, formatAncestry } = require('../db')
+import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js'
+import { getNode, getRootNodeId, deleteNode, formatAncestry } from '../db.js'
 
-const data = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
     .setName('delete')
     .setDescription('Delete a ticket topic')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
@@ -12,7 +12,7 @@ const data = new SlashCommandBuilder()
         .setRequired(true)
     )
 
-const execute = async interaction => {
+export const execute = async interaction => {
     const nodeId = parseInt(interaction.options.getString('node'))
     if (nodeId === getRootNodeId()) {
         await interaction.reply({
@@ -27,9 +27,4 @@ const execute = async interaction => {
         content: `:white_check_mark: Deleted \`${ancestry}\``,
         ephemeral: true,
     })
-}
-
-module.exports = {
-    data,
-    execute,
 }

@@ -1,8 +1,8 @@
-const { getNode } = require('../db')
-const { createTicket } = require('../ticket')
-const { updateInteraction } = require('../interaction')
+import { getNode } from '../db.js'
+import { createTicket } from '../ticket.js'
+import { updateInteraction } from '../interaction.js'
 
-const execute = async (interaction, nodeId) => {
+export const execute = async (interaction, nodeId) => {
     const node = getNode(parseInt(nodeId))
     const description = interaction.fields.getTextInputValue('ticket')
     const category = interaction.message.channel.parent
@@ -12,7 +12,4 @@ const execute = async (interaction, nodeId) => {
     })
 }
 
-module.exports = {
-    execute,
-    name: 'ticket',
-}
+export const name = 'ticket'

@@ -1,7 +1,7 @@
-const { SlashCommandBuilder, PermissionFlagsBits, TextInputBuilder, ModalBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js')
-const { getNode } = require('../db')
+import { SlashCommandBuilder, PermissionFlagsBits, TextInputBuilder, ModalBuilder, TextInputStyle, ActionRowBuilder } from 'discord.js'
+import { getNode } from '../db.js'
 
-const data = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
     .setName('update')
     .setDescription('Update a ticket topic')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
@@ -12,7 +12,7 @@ const data = new SlashCommandBuilder()
         .setRequired(true)
     )
 
-const execute = async interaction => {
+export const execute = async interaction => {
     const nodeId = parseInt(interaction.options.getString('node'))
     const node = getNode(nodeId)
     // TODO: use modal session id
@@ -38,9 +38,4 @@ const execute = async interaction => {
             ),
         )
     await interaction.showModal(modal)
-}
-
-module.exports = {
-    data,
-    execute,
 }

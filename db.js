@@ -1,5 +1,5 @@
-const Fuse = require('fuse.js')
-const sqlite = require('better-sqlite3')
+import Fuse from 'fuse.js'
+import sqlite from 'better-sqlite3'
 
 const db = sqlite('./data/db.sqlite')
 db.pragma('journal_mode = WAL')
@@ -30,16 +30,16 @@ db.exec(`
 `)
 
 const createTicketStatement = db.prepare('INSERT INTO tickets DEFAULT VALUES RETURNING id;')
-const getTicketId = () => createTicketStatement.get().id
+export const getTicketId = () => createTicketStatement.get().id
 
 const updateTicketStatement = db.prepare('UPDATE TICKETS SET channel_id = ? WHERE id = ?;')
-const updateTicketChannel = (ticketId, channelId) => updateTicketStatement.run(channelId, ticketId)
+export const updateTicketChannel = (ticketId, channelId) => updateTicketStatement.run(channelId, ticketId)
 
 const getTicketStatement = db.prepare('SELECT id FROM tickets WHERE channel_id = ?;')
-const getTicket = channelId => getTicketStatement.get(channelId)
+export const getTicket = channelId => getTicketStatement.get(channelId)
 
 const getRootNodeIdStatement = db.prepare('SELECT id FROM nodes WHERE parent_id IS NULL;')
-const getRootNodeId = () => getRootNodeIdStatement.get().id
+export const getRootNodeId = () => getRootNodeIdStatement.get().id
 
 const getNodeStatement = db.prepare('SELECT id, kind, name, description FROM nodes WHERE id = ?;')
 const getOptionsStatement = db.prepare('SELECT id, name FROM nodes WHERE parent_id = ?;')
@@ -48,14 +48,14 @@ const getAncestryStatement = db.prepare(`
         SELECT ? UNION ALL SELECT parent_id FROM nodes, n WHERE id = i
     ) SELECT id, name, significant FROM nodes, n WHERE id = i;
 `)
-const getNode = nodeId => {
+export const getNode = nodeId => {
     const node = getNodeStatement.get(nodeId)
     node.options = getOptionsStatement.all(nodeId)
     node.ancestry = getAncestryStatement.all(nodeId).reverse()
     return node
 }
 
-const formatAncestry = (node, includeInsigificant = false) => {
+export const formatAncestry = (node, includeInsigificant = false) => {
     let ancestry = node.ancestry
     if (!includeInsigificant) {
         ancestry = ancestry.filter(n => n.significant)
@@ -92,7 +92,7 @@ const updateFuse = () => {
 }
 updateFuse()
 
-const searchNodes = query => {
+export const searchNodes = query => {
     if (query === '') {
         // fuse returns no results for empty queries
         return fuse.getIndex().docs
@@ -102,26 +102,26 @@ const searchNodes = query => {
 }
 
 const deleteNodeStatement = db.prepare('DELETE FROM nodes WHERE id = ?;')
-const deleteNode = nodeId => {
+export const deleteNode = nodeId => {
     deleteNodeStatement.run(nodeId)
     updateFuse()
 }
 
 const createNodeStatement = db.prepare('INSERT INTO nodes (parent_id, kind, name, description, significant) VALUES (?, ?, ?, ?, ?) RETURNING id;')
-const createNode = ({ parentId, kind, name, description, significant }) => {
+export const createNode = ({ parentId, kind, name, description, significant }) => {
     const nodeId = createNodeStatement.get(parentId, kind, name, description, significant ? 1 : 0).id
     updateFuse()
     return nodeId
 }
 
 const updateNodeStatement = db.prepare('UPDATE nodes SET name = ?, description = ? WHERE id = ?;')
-const updateNode = (nodeId, { name, description }) => {
+export const updateNode = (nodeId, { name, description }) => {
     updateNodeStatement.run(name, description, nodeId)
     updateFuse()
 }
 
 const createSubscriptionStatement = db.prepare('INSERT INTO subscriptions (node_id, user_id) values (?, ?);')
-const createSubscription = (nodeId, userId) => {
+export const createSubscription = (nodeId, userId) => {
     try {
         createSubscriptionStatement.run(nodeId, userId)
         return true
@@ -134,7 +134,7 @@ const createSubscription = (nodeId, userId) => {
 }
 
 const deleteSubscriptionStatement = db.prepare('DELETE FROM subscriptions WHERE node_id = ? AND user_id = ?;')
-const deleteSubscription = (nodeId, userId) => {
+export const deleteSubscription = (nodeId, userId) => {
     const result = deleteSubscriptionStatement.run(nodeId, userId)
     return result.changes > 0
 }
@@ -144,20 +144,4 @@ const getSubscriptionsStatement = db.prepare(`
         SELECT ? UNION ALL SELECT parent_id FROM nodes, n WHERE id = i
     ) SELECT user_id FROM subscriptions, n WHERE node_id = i;
 `)
-const getSubscriptions = nodeId => getSubscriptionsStatement.all(nodeId).map(row => row.user_id)
-
-module.exports = {
-    getTicketId,
-    updateTicketChannel,
-    getTicket,
-    getRootNodeId,
-    deleteNode,
-    createNode,
-    updateNode,
-    formatAncestry,
-    getNode,
-    searchNodes,
-    createSubscription,
-    deleteSubscription,
-    getSubscriptions,
-}
+export const getSubscriptions = nodeId => getSubscriptionsStatement.all(nodeId).map(row => row.user_id)

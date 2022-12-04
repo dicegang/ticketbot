@@ -1,6 +1,6 @@
-const { createNode, formatAncestry, getNode } = require('../db')
+import { createNode, formatAncestry, getNode } from '../db.js'
 
-const execute = async (interaction, metadata) => {
+export const execute = async (interaction, metadata) => {
     const { parentId, kind, significant } = JSON.parse(metadata)
     if (parentId === null) {
         await interaction.reply({
@@ -25,7 +25,4 @@ const execute = async (interaction, metadata) => {
     })
 }
 
-module.exports = {
-    execute,
-    name: 'create',
-}
+export const name = 'create'

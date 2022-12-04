@@ -1,7 +1,7 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js')
-const { deleteSubscription, getNode, formatAncestry } = require('../db')
+import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js'
+import { deleteSubscription, getNode, formatAncestry } from '../db.js'
 
-const data = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
     .setName('unsubscribe')
     .setDescription('Unsubscribe from a ticket topic')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
@@ -16,7 +16,7 @@ const data = new SlashCommandBuilder()
         .setDescription('The user to unsubscribe (default you)')
     )
 
-const execute = async interaction => {
+export const execute = async interaction => {
     const nodeId = parseInt(interaction.options.getString('node'))
     const user = interaction.options.getUser('user') ?? interaction.user
     const result = await deleteSubscription(nodeId, user.id)
@@ -32,9 +32,4 @@ const execute = async interaction => {
         content: `:white_check_mark: Unsubscribed <@${user.id}> from \`${ancestry}\``,
         ephemeral: true,
     })
-}
-
-module.exports = {
-    data,
-    execute,
 }

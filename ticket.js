@@ -1,8 +1,8 @@
-const { EmbedBuilder } = require('@discordjs/builders')
-const { ChannelType, PermissionFlagsBits } = require('discord.js')
-const { getTicketId, updateTicketChannel, getTicket, getSubscriptions, formatAncestry } = require('./db')
+import { EmbedBuilder } from '@discordjs/builders'
+import { ChannelType, PermissionFlagsBits } from 'discord.js'
+import { getTicketId, updateTicketChannel, getTicket, getSubscriptions, formatAncestry } from './db.js'
 
-const createTicket = async (user, description, category, node) => {
+export const createTicket = async (user, description, category, node) => {
     const ticketId = getTicketId()
     const channelName = `${ticketId}-${user.username}`
 
@@ -41,16 +41,11 @@ const createTicket = async (user, description, category, node) => {
     await channel.send({ content, embeds: [embed] })
 }
 
-const closeTicket = async channel => {
+export const closeTicket = async channel => {
     const ticket = getTicket(channel.id)
     if (ticket !== undefined) {
         await channel.delete()
         return true
     }
     return false
-}
-
-module.exports = {
-    createTicket,
-    closeTicket,
 }
