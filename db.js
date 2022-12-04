@@ -75,26 +75,29 @@ const fuse = new Fuse([], {
 const getAllNodesStatement = db.prepare('SELECT id, parent_id, name FROM nodes ORDER BY id;')
 const updateFuse = () => {
     const nodes = getAllNodesStatement.all()
-    const nodesById = new Map(nodes.map(node => [node.id, node]))
+    const nodeParents = new Map(nodes.map(n => [n.id, []]))
     for (const node of nodes) {
-        const ancestry = [node.name]
-        let current = node
-        while (current.parent_id !== null) {
-            current = nodesById.get(current.parent_id)
-            ancestry.push(current.name)
-        }
-        ancestry.reverse()
-        node.ancestry = ancestry.join(' > ')
+        nodeParents.get(node.parent_id)?.push(node)
     }
+    const buildAncestry = (node) => {
+        for (const child of nodeParents.get(node.id)) {
+            child.ancestry = `${node.ancestry} > ${child.name}`
+            buildAncestry(child)
+        }
+    }
+    const root = nodes.find(n => n.parent_id === null)
+    root.ancestry = root.name
+    buildAncestry(root)
     fuse.setCollection(nodes)
 }
 updateFuse()
 
 const searchNodes = query => {
     if (query === '') {
+        // fuse returns no results for empty queries
         return fuse.getIndex().docs
     }
-    const results = fuse.search(query, { limit: 10 })
+    const results = fuse.search(query, { limit: 25 })
     return results.map(result => result.item)
 }
 
@@ -104,10 +107,11 @@ const deleteNode = nodeId => {
     updateFuse()
 }
 
-const createNodeStatement = db.prepare('INSERT INTO nodes (parent_id, kind, name, description, significant) VALUES (?, ?, ?, ?, ?);')
+const createNodeStatement = db.prepare('INSERT INTO nodes (parent_id, kind, name, description, significant) VALUES (?, ?, ?, ?, ?) RETURNING id;')
 const createNode = ({ parentId, kind, name, description, significant }) => {
-    createNodeStatement.run(parentId, kind, name, description, significant ? 1 : 0)
+    const nodeId = createNodeStatement.get(parentId, kind, name, description, significant ? 1 : 0).id
     updateFuse()
+    return nodeId
 }
 
 const updateNodeStatement = db.prepare('UPDATE nodes SET name = ?, description = ? WHERE id = ?;')

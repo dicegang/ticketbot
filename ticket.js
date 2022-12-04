@@ -33,13 +33,12 @@ const createTicket = async (user, description, category, node) => {
             iconURL: user.avatarURL(),
         })
 
+    let content = `Use \`/close\` to close this ticket.\n\n${user}`
     const subscribers = getSubscriptions(node.id)
-    const pingSubs = (subscribers.length > 0) ? subscribers.map(sub => `<@${sub}>`).join(' ') : 'none'
-
-    await channel.send({
-        content: `Use \`/close\` to close this ticket.\n\n${user.toString()}\nSubscribers: ${pingSubs}`,
-        embeds: [embed],
-    })
+    if (subscribers.length > 0) {
+        content += `\nSubscribers: ${subscribers.map(sub => `<@${sub}>`).join(' ')}`
+    }
+    await channel.send({ content, embeds: [embed] })
 }
 
 const closeTicket = async channel => {

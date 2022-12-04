@@ -13,15 +13,14 @@ const data = new SlashCommandBuilder()
     )
     .addUserOption(option =>
         option.setName('user')
-        .setDescription('The user to unsubscribe (defaults to you)')
+        .setDescription('The user to unsubscribe (default you)')
     )
 
 const execute = async interaction => {
     const nodeId = parseInt(interaction.options.getString('node'))
     const user = interaction.options.getUser('user') ?? interaction.user
     const result = await deleteSubscription(nodeId, user.id)
-    const node = getNode(nodeId)
-    const ancestry = formatAncestry(node, true)
+    const ancestry = formatAncestry(getNode(nodeId), true)
     if (!result) {
         await interaction.reply({
             content: `:x: <@${user.id}> is not subscribed to \`${ancestry}\``,

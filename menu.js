@@ -1,19 +1,17 @@
 const { TextInputStyle, ModalBuilder, TextInputBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, StringSelectMenuBuilder } = require('discord.js')
 const { formatAncestry } = require('./db')
 
-const makeModal = (node) => {
-    const modal = new ModalBuilder()
-        .setCustomId('ticket:' + node.id)
-        .setTitle('Create a ticket')
-
-    const ticketInput = new TextInputBuilder()
-        .setCustomId('ticket')
-        .setLabel('What do you need help with?')
-        .setStyle(TextInputStyle.Paragraph)
-
-    modal.addComponents(new ActionRowBuilder().addComponents(ticketInput))
-    return modal
-}
+const makeModal = (node) => new ModalBuilder()
+    .setCustomId('ticket:' + node.id)
+    .setTitle('Create a ticket')
+    .addComponents(
+        new ActionRowBuilder().addComponents(
+            new TextInputBuilder()
+                .setCustomId('ticket')
+                .setLabel('What do you need help with?')
+                .setStyle(TextInputStyle.Paragraph)
+        )
+    )
 
 // make a message from a node
 const makeMessage = (node) => {

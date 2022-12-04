@@ -13,7 +13,7 @@ const data = new SlashCommandBuilder()
     )
     .addUserOption(option =>
         option.setName('user')
-        .setDescription('The user to subscribe (defaults to you)')
+        .setDescription('The user to subscribe (default you)')
     )
 
 const execute = async interaction => {

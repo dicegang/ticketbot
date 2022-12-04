@@ -21,8 +21,7 @@ const execute = async interaction => {
         })
         return
     }
-    const node = getNode(nodeId)
-    const ancestry = formatAncestry(node, true)
+    const ancestry = formatAncestry(getNode(nodeId), true)
     deleteNode(nodeId)
     await interaction.reply({
         content: `:white_check_mark: Deleted \`${ancestry}\``,

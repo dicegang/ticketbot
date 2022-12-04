@@ -11,7 +11,7 @@ const execute = async interaction => {
     const message = makeMessage(getNode(getRootNodeId()))
     await interaction.channel.send(message)
     await interaction.reply({
-        content: ':white_check_mark: Sent a help menu message',
+        content: ':white_check_mark: Sent help menu message',
         ephemeral: true,
     })
 }
