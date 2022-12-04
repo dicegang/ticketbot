@@ -1,80 +1,57 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, StringSelectMenuBuilder } = require('discord.js')
+const { TextInputStyle, ModalBuilder, TextInputBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, StringSelectMenuBuilder } = require('discord.js')
+const { formatAncestry } = require('./db')
 
-const { menus } = require('./config')
+const makeModal = (node) => {
+    const modal = new ModalBuilder()
+        .setCustomId('ticket:' + node.id)
+        .setTitle('Create a ticket')
 
-const pathToMenu = new Map()
-const pathToDisplay = new Map()
+    const ticketInput = new TextInputBuilder()
+        .setCustomId('ticket')
+        .setLabel('What do you need help with?')
+        .setStyle(TextInputStyle.Paragraph)
 
-// returns new path when at a menu and selected the index-th option
-const newPath = (path, index) => `${path}.${index}`
-
-// get menu by path
-const getMenu = path => pathToMenu.get(path)
-
-// get display by path
-const getDisplay = path => pathToDisplay.get(path)
-
-// preprocess menus so we can get a submenu by path
-const parseMenu = (menu, path, display) => {
-    pathToMenu.set(path, menu)
-    pathToDisplay.set(path, display.slice(3))
-
-    // we're at a leaf node so don't recurse
-    if (menu == null) {
-        return
-    }
-
-    menu.path = path
-
-    for (let i = 0; i < menu.choices.length; i++) {
-        parseMenu(
-            menu.choices[i].child,
-            newPath(path, i),
-            `${display} > ${menu.choices[i].label}`
-        )
-    }
+    modal.addComponents(new ActionRowBuilder().addComponents(ticketInput))
+    return modal
 }
-parseMenu(menus, '', '')
 
-// make a message from a menu object
-const makeMessage = (type, { kind, title, description, choices, path }) => {
+// make a message from a node
+const makeMessage = (node) => {
     const embed = new EmbedBuilder()
-        .setTitle(title)
-        .setDescription(description)
+        .setTitle(formatAncestry(node))
+        .setDescription(node.description)
     const row = new ActionRowBuilder()
 
-    if (kind === 'buttons') {
+    if (node.kind === 'buttons') {
         row.addComponents(
-            choices.map(({ label }, idx) => (
+            node.options.map(option => (
                 new ButtonBuilder()
-                    .setCustomId(`${type}-${newPath(path, idx)}`)
-                    .setLabel(label)
+                    .setCustomId(option.id.toString())
+                    .setLabel(option.name)
                     .setStyle(ButtonStyle.Primary)
             ))
         )
-    } else { // if (kind === 'select') {
+    } else if (node.kind === 'select') {
         row.addComponents(
             new StringSelectMenuBuilder()
                 .setCustomId('select')
                 .setPlaceholder('Select an option')
                 .addOptions(
-                    choices.map(({ label }, idx) => ({
-                        label,
-                        value: `${type}-${newPath(path, idx)}`,
+                    node.options.map(option => ({
+                        label: option.name,
+                        value: option.id.toString(),
                     }))
                 )
         )
     }
 
-    return ({
+    return {
         embeds: [embed],
         components: [row],
-    })
+    }
 }
 
 module.exports = {
-    newPath,
-    getMenu,
-    getDisplay,
+    makeModal,
     makeMessage,
 }

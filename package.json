@@ -1,9 +1,12 @@
 {
   "name": "ticketbot",
-  "version": "1.0.0",
+  "version": "0.0.0",
+  "private": true,
   "dependencies": {
     "ajv": "^8.11.2",
     "better-sqlite3": "^8.0.1",
-    "discord.js": "^14.7.1"
+    "discord.js": "^14.7.1",
+    "dotenv": "^16.0.3",
+    "fuse.js": "^6.6.2"
   }
 }

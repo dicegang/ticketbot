@@ -1,8 +1,8 @@
 const { EmbedBuilder } = require('@discordjs/builders')
 const { ChannelType, PermissionFlagsBits } = require('discord.js')
-const { getTicketId, updateTicketChannel, getTicket } = require('./db')
+const { getTicketId, updateTicketChannel, getTicket, getSubscriptions, formatAncestry } = require('./db')
 
-const createTicket = async (category, user, title, description, subscribers) => {
+const createTicket = async (user, description, category, node) => {
     const ticketId = getTicketId()
     const channelName = `${ticketId}-${user.username}`
 
@@ -26,13 +26,14 @@ const createTicket = async (category, user, title, description, subscribers) => 
     updateTicketChannel(ticketId, channel.id)
 
     const embed = new EmbedBuilder()
-        .setTitle(title)
+        .setTitle(formatAncestry(node))
         .setDescription(description)
         .setAuthor({
             name: user.username,
             iconURL: user.avatarURL(),
         })
 
+    const subscribers = getSubscriptions(node.id)
     const pingSubs = (subscribers.length > 0) ? subscribers.map(sub => `<@${sub}>`).join(' ') : 'none'
 
     await channel.send({
