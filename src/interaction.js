@@ -29,7 +29,8 @@ export const continueMenu = async (interaction, nodeId) => {
     await updateInteraction(interaction, message)
 }
 
-export const handleAutocomplete = async interaction => {
+// process autocomplete node search
+export const handleAutocomplete = async (interaction) => {
     const query = interaction.options.getFocused()
     const results = searchNodes(query).map(result => ({
         name: result.ancestry,

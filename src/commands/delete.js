@@ -12,7 +12,7 @@ export const data = new SlashCommandBuilder()
         .setRequired(true)
     )
 
-export const execute = async interaction => {
+export const execute = async (interaction) => {
     const nodeId = parseInt(interaction.options.getString('node'))
     if (nodeId === getRootNodeId()) {
         await interaction.reply({

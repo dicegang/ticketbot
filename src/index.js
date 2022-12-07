@@ -5,24 +5,21 @@ import commands from './commands/index.js'
 import modals from './modals/index.js'
 
 const token = process.env.APP_DISCORD_TOKEN
-const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.MessageContent,
-    ]
-})
+const guildId = process.env.APP_DISCORD_GUILD
+
+const client = new Client({ intents: [GatewayIntentBits.Guilds] })
 const rest = new REST().setToken(token)
 
-client.once(Events.ClientReady, async evt => {
+client.once(Events.ClientReady, async (evt) => {
     console.log(`Ready! Logged in as ${evt.user.tag}`)
     await rest.put(
-        Routes.applicationGuildCommands(evt.user.id, process.env.APP_DISCORD_GUILD),
+        Routes.applicationGuildCommands(evt.user.id, guildId),
         { body: Array.from(commands.values(), c => c.data.toJSON()) },
     )
     console.log('Successfully reloaded commands.')
 })
 
-client.on(Events.InteractionCreate, async interaction => {
+client.on(Events.InteractionCreate, async (interaction) => {
     try {
         if (interaction.isChatInputCommand()) {
             const command = commands.get(interaction.commandName)

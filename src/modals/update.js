@@ -1,5 +1,7 @@
 import { updateNode, formatAncestry, getNode } from '../db.js'
 
+export const name = 'update'
+
 export const execute = async (interaction, metadata) => {
     const { nodeId } = JSON.parse(metadata)
     const name = interaction.fields.getTextInputValue('name')
@@ -11,5 +13,3 @@ export const execute = async (interaction, metadata) => {
         ephemeral: true,
     })
 }
-
-export const name = 'update'

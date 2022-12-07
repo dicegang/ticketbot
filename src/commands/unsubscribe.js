@@ -16,7 +16,7 @@ export const data = new SlashCommandBuilder()
         .setDescription('The user to unsubscribe (default you)')
     )
 
-export const execute = async interaction => {
+export const execute = async (interaction) => {
     const nodeId = parseInt(interaction.options.getString('node'))
     const user = interaction.options.getUser('user') ?? interaction.user
     const result = await deleteSubscription(nodeId, user.id)

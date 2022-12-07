@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js'
-import { getNode, createSubscription, formatAncestry } from '../db.js'
+import { createSubscription, getNode, formatAncestry } from '../db.js'
 
 export const data = new SlashCommandBuilder()
     .setName('subscribe')
@@ -16,12 +16,11 @@ export const data = new SlashCommandBuilder()
         .setDescription('The user to subscribe (default you)')
     )
 
-export const execute = async interaction => {
+export const execute = async (interaction) => {
     const nodeId = parseInt(interaction.options.getString('node'))
     const user = interaction.options.getUser('user') ?? interaction.user
     const result = await createSubscription(nodeId, user.id)
-    const node = getNode(nodeId)
-    const ancestry = formatAncestry(node, true)
+    const ancestry = formatAncestry(getNode(nodeId), true)
     if (!result) {
         await interaction.reply({
             content: `:x: <@${user.id}> is already subscribed to \`${ancestry}\``,

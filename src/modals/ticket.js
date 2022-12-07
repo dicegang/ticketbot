@@ -2,6 +2,8 @@ import { getNode } from '../db.js'
 import { createTicket } from '../ticket.js'
 import { updateInteraction } from '../interaction.js'
 
+export const name = 'ticket'
+
 export const execute = async (interaction, nodeId) => {
     const node = getNode(parseInt(nodeId))
     const description = interaction.fields.getTextInputValue('ticket')
@@ -11,5 +13,3 @@ export const execute = async (interaction, nodeId) => {
         content: ':white_check_mark: Created a ticket',
     })
 }
-
-export const name = 'ticket'

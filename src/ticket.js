@@ -41,7 +41,7 @@ export const createTicket = async (user, description, category, node) => {
     await channel.send({ content, embeds: [embed] })
 }
 
-export const closeTicket = async channel => {
+export const closeTicket = async (channel) => {
     const ticket = getTicket(channel.id)
     if (ticket !== undefined) {
         await channel.delete()

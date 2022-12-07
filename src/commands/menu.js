@@ -7,7 +7,7 @@ export const data = new SlashCommandBuilder()
     .setDescription('Send a help menu message')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
 
-export const execute = async interaction => {
+export const execute = async (interaction) => {
     const message = makeMessage(getNode(getRootNodeId()))
     await interaction.channel.send(message)
     await interaction.reply({

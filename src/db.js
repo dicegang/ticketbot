@@ -11,22 +11,22 @@ db.exec(`
 
     CREATE TABLE IF NOT EXISTS nodes (
         id INTEGER PRIMARY KEY,
-        parent_id INTEGER REFERENCES nodes(id) ON DELETE CASCADE,
+        parent_id INTEGER REFERENCES nodes ON DELETE CASCADE,
         kind TEXT NOT NULL,
         name TEXT NOT NULL,
-        description TEXT,
+        description TEXT NOT NULL,
         significant INTEGER NOT NULL
     ) STRICT;
 
     CREATE TABLE IF NOT EXISTS subscriptions (
         id INTEGER PRIMARY KEY,
-        node_id INTEGER NOT NULL REFERENCES nodes(id) ON DELETE CASCADE,
+        node_id INTEGER NOT NULL REFERENCES nodes ON DELETE CASCADE,
         user_id TEXT NOT NULL,
         UNIQUE (node_id, user_id)
     ) STRICT;
 
-    INSERT OR IGNORE INTO nodes (id, kind, name, significant)
-        VALUES (1, 'button', 'Create a Ticket', FALSE);
+    INSERT OR IGNORE INTO nodes (id, kind, name, description, significant)
+        VALUES (1, 'buttons', 'Create a Ticket', '', FALSE);
 `)
 
 const createTicketStatement = db.prepare('INSERT INTO tickets DEFAULT VALUES RETURNING id;')
@@ -36,7 +36,7 @@ const updateTicketStatement = db.prepare('UPDATE TICKETS SET channel_id = ? WHER
 export const updateTicketChannel = (ticketId, channelId) => updateTicketStatement.run(channelId, ticketId)
 
 const getTicketStatement = db.prepare('SELECT id FROM tickets WHERE channel_id = ?;')
-export const getTicket = channelId => getTicketStatement.get(channelId)
+export const getTicket = (channelId) => getTicketStatement.get(channelId)
 
 const getRootNodeIdStatement = db.prepare('SELECT id FROM nodes WHERE parent_id IS NULL;')
 export const getRootNodeId = () => getRootNodeIdStatement.get().id
@@ -48,8 +48,11 @@ const getAncestryStatement = db.prepare(`
         SELECT ? UNION ALL SELECT parent_id FROM nodes, n WHERE id = i
     ) SELECT id, name, significant FROM nodes, n WHERE id = i;
 `)
-export const getNode = nodeId => {
+export const getNode = (nodeId) => {
     const node = getNodeStatement.get(nodeId)
+    if (!node) {
+        return
+    }
     node.options = getOptionsStatement.all(nodeId)
     node.ancestry = getAncestryStatement.all(nodeId).reverse()
     return node
@@ -67,7 +70,7 @@ export const formatAncestry = (node, includeInsigificant = false) => {
 }
 
 const fuse = new Fuse([], {
-    keys: ['name', {
+    keys: ['name', { // name has weight 1
         name: 'ancestry',
         weight: 0.5,
     }],
@@ -75,12 +78,12 @@ const fuse = new Fuse([], {
 const getAllNodesStatement = db.prepare('SELECT id, parent_id, name FROM nodes ORDER BY id;')
 const updateFuse = () => {
     const nodes = getAllNodesStatement.all()
-    const nodeParents = new Map(nodes.map(n => [n.id, []]))
+    const nodeChildren = new Map(nodes.map(n => [n.id, []]))
     for (const node of nodes) {
-        nodeParents.get(node.parent_id)?.push(node)
+        nodeChildren.get(node.parent_id)?.push(node)
     }
     const buildAncestry = (node) => {
-        for (const child of nodeParents.get(node.id)) {
+        for (const child of nodeChildren.get(node.id)) {
             child.ancestry = `${node.ancestry} > ${child.name}`
             buildAncestry(child)
         }
@@ -92,7 +95,7 @@ const updateFuse = () => {
 }
 updateFuse()
 
-export const searchNodes = query => {
+export const searchNodes = (query) => {
     if (query === '') {
         // fuse returns no results for empty queries
         return fuse.getIndex().docs
@@ -102,7 +105,7 @@ export const searchNodes = query => {
 }
 
 const deleteNodeStatement = db.prepare('DELETE FROM nodes WHERE id = ?;')
-export const deleteNode = nodeId => {
+export const deleteNode = (nodeId) => {
     deleteNodeStatement.run(nodeId)
     updateFuse()
 }
@@ -144,4 +147,4 @@ const getSubscriptionsStatement = db.prepare(`
         SELECT ? UNION ALL SELECT parent_id FROM nodes, n WHERE id = i
     ) SELECT user_id FROM subscriptions, n WHERE node_id = i;
 `)
-export const getSubscriptions = nodeId => getSubscriptionsStatement.all(nodeId).map(row => row.user_id)
+export const getSubscriptions = (nodeId) => getSubscriptionsStatement.all(nodeId).map(row => row.user_id)

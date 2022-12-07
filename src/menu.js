@@ -17,20 +17,25 @@ export const makeModal = (node) => new ModalBuilder()
 export const makeMessage = (node) => {
     const embed = new EmbedBuilder()
         .setTitle(formatAncestry(node))
-        .setDescription(node.description)
-    const row = new ActionRowBuilder()
+    if (node.description) {
+        embed.setDescription(node.description)
+    }
+    const rows = []
 
     if (node.kind === 'buttons') {
-        row.addComponents(
-            node.options.map(option => (
-                new ButtonBuilder()
-                    .setCustomId(option.id.toString())
-                    .setLabel(option.name)
-                    .setStyle(ButtonStyle.Primary)
-            ))
-        )
+        for (let i = 0; i < node.options.length; i += 5) {
+            const row = new ActionRowBuilder().addComponents(
+                node.options.slice(i, i + 5).map(option => (
+                    new ButtonBuilder()
+                        .setCustomId(option.id.toString())
+                        .setLabel(option.name)
+                        .setStyle(ButtonStyle.Primary)
+                ))
+            )
+            rows.push(row)
+        }
     } else if (node.kind === 'select') {
-        row.addComponents(
+        const row = new ActionRowBuilder().addComponents(
             new StringSelectMenuBuilder()
                 .setCustomId('select')
                 .setPlaceholder('Select an option')
@@ -41,10 +46,10 @@ export const makeMessage = (node) => {
                     }))
                 )
         )
+        rows.push(row)
+    } else {
+        throw new Error(`Invalid node kind: ${node.kind}`)
     }
 
-    return {
-        embeds: [embed],
-        components: [row],
-    }
+    return { embeds: [embed], components: rows }
 }

@@ -24,7 +24,7 @@ export const data = new SlashCommandBuilder()
         .setDescription('Whether this node should be shown in ancestry (default true)')
     )
 
-export const execute = async interaction => {
+export const execute = async (interaction) => {
     const parentId = parseInt(interaction.options.getString('parent'))
     const kind = interaction.options.getString('kind')
     const significant = interaction.options.getBoolean('significant') ?? true

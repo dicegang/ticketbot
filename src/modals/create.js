@@ -1,5 +1,7 @@
 import { createNode, formatAncestry, getNode } from '../db.js'
 
+export const name = 'create'
+
 export const execute = async (interaction, metadata) => {
     const { parentId, kind, significant } = JSON.parse(metadata)
     if (parentId === null) {
@@ -24,5 +26,3 @@ export const execute = async (interaction, metadata) => {
         ephemeral: true,
     })
 }
-
-export const name = 'create'
