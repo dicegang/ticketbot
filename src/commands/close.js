@@ -11,10 +11,6 @@ export const execute = async (interaction) => {
             content: ':x: This is not a ticket!',
             ephemeral: true,
         })
-        return
     }
-    await interaction.reply({
-        content: ':white_check_mark: Ticket closed!',
-        ephemeral: true,
-    })
+    // cant reply to interaction on archived thread
 }

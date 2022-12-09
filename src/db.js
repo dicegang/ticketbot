@@ -7,7 +7,8 @@ db.pragma('foreign_keys = ON')
 db.exec(`
     CREATE TABLE IF NOT EXISTS tickets (
         id INTEGER PRIMARY KEY,
-        channel_id TEXT UNIQUE
+        user_id TEXT NOT NULL,
+        thread_id TEXT UNIQUE
     ) STRICT;
 
     CREATE TABLE IF NOT EXISTS nodes (
@@ -30,14 +31,14 @@ db.exec(`
         VALUES (1, 'buttons', 'Create a Ticket', '', FALSE);
 `)
 
-const createTicketStatement = db.prepare('INSERT INTO tickets DEFAULT VALUES RETURNING id;')
-export const getTicketId = () => createTicketStatement.get().id
+const createTicketStatement = db.prepare('INSERT INTO tickets (user_id) VALUES (?) RETURNING id;')
+export const createTicket = (userId) => createTicketStatement.get(userId).id
 
-const updateTicketStatement = db.prepare('UPDATE TICKETS SET channel_id = ? WHERE id = ?;')
-export const updateTicketChannel = (ticketId, channelId) => updateTicketStatement.run(channelId, ticketId)
+const updateTicketStatement = db.prepare('UPDATE TICKETS SET thread_id = ? WHERE id = ?;')
+export const updateTicket = (ticketId, threadId) => updateTicketStatement.run(threadId, ticketId)
 
-const getTicketStatement = db.prepare('SELECT id FROM tickets WHERE channel_id = ?;')
-export const getTicket = (channelId) => getTicketStatement.get(channelId)
+const getTicketStatement = db.prepare('SELECT id, user_id FROM tickets WHERE thread_id = ?;')
+export const getTicket = (threadId) => getTicketStatement.get(threadId)
 
 const getRootNodeIdStatement = db.prepare('SELECT id FROM nodes WHERE parent_id IS NULL;')
 export const getRootNodeId = () => getRootNodeIdStatement.get().id

@@ -1,32 +1,21 @@
 import { EmbedBuilder } from '@discordjs/builders'
-import { ChannelType, PermissionFlagsBits } from 'discord.js'
-import { getTicketId, updateTicketChannel, getTicket, getSubscriptions, formatAncestry } from './db.js'
+import { ThreadAutoArchiveDuration, ChannelType } from 'discord.js'
+import { createTicket, updateTicket, getTicket, getSubscriptions, formatAncestry } from './db.js'
 
-export const createTicket = async (user, description, category, node) => {
-    const ticketId = getTicketId()
-    const channelName = `${ticketId}-${user.username}`
+export const makeTicket = async ({ user, channel, description, node }) => {
+    const ticketId = createTicket(user.id)
+    const ancestry = formatAncestry(node)
+    const name = `[${ticketId}] ${ancestry} (${user.username})`
 
-    const channel = await category.guild.channels.create({
-        name: channelName,
-        type: ChannelType.GuildText,
-        parent: category,
-        permissionOverwrites: [
-            {
-                id: user.id,
-                allow: [PermissionFlagsBits.ViewChannel],
-                type: 'member',
-            },
-            {
-                id: category.guildId,
-                deny: [PermissionFlagsBits.ViewChannel],
-                type: 'role',
-            },
-        ]
+    const thread = await channel.threads.create({
+        name,
+        autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
+        type: ChannelType.PrivateThread,
     })
-    updateTicketChannel(ticketId, channel.id)
+    updateTicket(ticketId, thread.id)
 
     const embed = new EmbedBuilder()
-        .setTitle(formatAncestry(node))
+        .setTitle(ancestry)
         .setDescription(description)
         .setAuthor({
             name: user.username,
@@ -38,13 +27,18 @@ export const createTicket = async (user, description, category, node) => {
     if (subscribers.length > 0) {
         content += `\nSubscribers: ${subscribers.map(sub => `<@${sub}>`).join(' ')}`
     }
-    await channel.send({ content, embeds: [embed] })
+    await thread.send({ content, embeds: [embed] })
+    return thread
 }
 
-export const closeTicket = async (channel) => {
-    const ticket = getTicket(channel.id)
+export const closeTicket = async (thread) => {
+    const ticket = getTicket(thread.id)
     if (ticket !== undefined) {
-        await channel.delete()
+        if (thread.archived) {
+            // cant lock archived threads
+            await thread.edit({ archived: false })
+        }
+        await thread.edit({ archived: true, locked: true })
         return true
     }
     return false
