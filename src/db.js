@@ -3,6 +3,7 @@ import sqlite from 'better-sqlite3'
 
 const db = sqlite('./data/db.sqlite')
 db.pragma('journal_mode = WAL')
+db.pragma('foreign_keys = ON')
 db.exec(`
     CREATE TABLE IF NOT EXISTS tickets (
         id INTEGER PRIMARY KEY,
@@ -17,13 +18,13 @@ db.exec(`
         description TEXT NOT NULL,
         significant INTEGER NOT NULL
     ) STRICT;
+    CREATE INDEX IF NOT EXISTS nodes_parent_id ON nodes (parent_id);
 
     CREATE TABLE IF NOT EXISTS subscriptions (
-        id INTEGER PRIMARY KEY,
-        node_id INTEGER NOT NULL REFERENCES nodes ON DELETE CASCADE,
-        user_id TEXT NOT NULL,
-        UNIQUE (node_id, user_id)
-    ) STRICT;
+        node_id INTEGER REFERENCES nodes ON DELETE CASCADE,
+        user_id TEXT,
+        PRIMARY KEY (node_id, user_id)
+    ) WITHOUT ROWID, STRICT;
 
     INSERT OR IGNORE INTO nodes (id, kind, name, description, significant)
         VALUES (1, 'buttons', 'Create a Ticket', '', FALSE);
