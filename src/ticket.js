@@ -28,18 +28,15 @@ export const makeTicket = async ({ user, channel, description, node }) => {
         content += `\nSubscribers: ${subscribers.map(sub => `<@${sub}>`).join(' ')}`
     }
     await thread.send({ content, embeds: [embed] })
+    await thread.setLocked(true)
     return thread
 }
 
 export const closeTicket = async (thread) => {
     const ticket = getTicket(thread.id)
-    if (ticket !== undefined) {
-        if (thread.archived) {
-            // cant lock archived threads
-            await thread.edit({ archived: false })
-        }
-        await thread.edit({ archived: true, locked: true })
-        return true
+    if (!ticket) {
+        return false
     }
-    return false
+    await thread.setArchived(true)
+    return true
 }

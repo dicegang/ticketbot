@@ -2,7 +2,6 @@ import 'dotenv/config'
 import { Client, Events, GatewayIntentBits, REST, Routes, PermissionFlagsBits } from 'discord.js'
 import { continueMenu, handleAutocomplete } from './interaction.js'
 import { getTicket } from './db.js'
-import { closeTicket } from './ticket.js'
 import commands from './commands/index.js'
 import modals from './modals/index.js'
 
@@ -49,20 +48,23 @@ client.on(Events.InteractionCreate, async (interaction) => {
 })
 
 client.on(Events.ThreadUpdate, async (_oldThread, newThread) => {
-    // lock auto-archived and manually archived (but not locked) ticket threads
-    if (newThread.archived && !newThread.locked) {
-        await closeTicket(newThread)
+    // re-lock manually unlocked ticket threads
+    if (!getTicket(newThread.id)) {
+        return
+    }
+    if (!newThread.archived && !newThread.locked) {
+        await newThread.setLocked(true)
     }
 })
 
 client.on(Events.ThreadMembersUpdate, async (_addedMembers, removedMembers, thread) => {
-    // archive and lock threads if user leaves
+    // archive ticket threads if user leaves
     const ticket = getTicket(thread.id)
     if (!ticket) {
         return
     }
     if (removedMembers.has(ticket.user_id)) {
-        await closeTicket(thread)
+        await thread.setArchived(true)
     }
 })
 
