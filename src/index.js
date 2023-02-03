@@ -41,7 +41,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     } catch (e) {
         console.error(e)
         await interaction.reply({
-            content: 'There was an error!',
+            content: ':x: There was an error!',
             ephemeral: true,
         })
     }

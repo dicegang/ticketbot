@@ -1,6 +1,6 @@
 import { EmbedBuilder } from '@discordjs/builders'
 import { ThreadAutoArchiveDuration, ChannelType } from 'discord.js'
-import { createTicket, updateTicket, getTicket, getSubscriptions, formatAncestry } from './db.js'
+import { createTicket, updateTicket, getSubscriptions, formatAncestry } from './db.js'
 
 export const makeTicket = async ({ user, channel, description, node }) => {
     const ticketId = createTicket(user.id)
@@ -33,10 +33,6 @@ export const makeTicket = async ({ user, channel, description, node }) => {
 }
 
 export const closeTicket = async (thread) => {
-    const ticket = getTicket(thread.id)
-    if (!ticket) {
-        return false
-    }
     await thread.setArchived(true)
     return true
 }
