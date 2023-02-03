@@ -100,7 +100,7 @@ updateFuse()
 export const searchNodes = (query) => {
     if (query === '') {
         // fuse returns no results for empty queries
-        return fuse.getIndex().docs
+        return fuse.getIndex().docs.slice(0, 25)
     }
     const results = fuse.search(query, { limit: 25 })
     return results.map(result => result.item)
