@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js'
-import { getNode, getRootNodeId, deleteNode, formatAncestry } from '../db.js'
+import { getNode, getRootNodeId, deleteNode, formatAncestry, resolveNode } from '../db.js'
 
 export const data = new SlashCommandBuilder()
     .setName('delete')
@@ -13,7 +13,7 @@ export const data = new SlashCommandBuilder()
     )
 
 export const execute = async (interaction) => {
-    const nodeId = parseInt(interaction.options.getString('node'))
+    const nodeId = resolveNode(interaction.options.getString('node'))
     if (nodeId === getRootNodeId()) {
         await interaction.reply({
             content: ':x: Cannot delete the root node',

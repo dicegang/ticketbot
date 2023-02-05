@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, PermissionFlagsBits, TextInputBuilder, ModalBuilder, TextInputStyle, ActionRowBuilder } from 'discord.js'
-import { getNode } from '../db.js'
+import { getNode, resolveNode } from '../db.js'
 
 export const data = new SlashCommandBuilder()
     .setName('update')
@@ -13,12 +13,11 @@ export const data = new SlashCommandBuilder()
     )
 
 export const execute = async (interaction) => {
-    const nodeId = parseInt(interaction.options.getString('node'))
+    const nodeId = resolveNode(interaction.options.getString('node'))
     const node = getNode(nodeId)
-    // TODO: use modal session id
-    const metadata = JSON.stringify({ nodeId })
     const modal = new ModalBuilder()
-        .setCustomId('update:' + metadata)
+        // TODO: use modal session id
+        .setCustomId(JSON.stringify({ type: 'update', nodeId }))
         .setTitle('Update a node')
         .addComponents(
             new ActionRowBuilder().addComponents(

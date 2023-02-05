@@ -9,7 +9,7 @@ export const makeTicket = async ({ user, channel, description, node }) => {
 
     const thread = await channel.threads.create({
         name,
-        autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
+        autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
         type: ChannelType.PrivateThread,
     })
     updateTicket(ticketId, thread.id)
@@ -30,9 +30,4 @@ export const makeTicket = async ({ user, channel, description, node }) => {
     await thread.send({ content, embeds: [embed] })
     await thread.setLocked(true)
     return thread
-}
-
-export const closeTicket = async (thread) => {
-    await thread.setArchived(true)
-    return true
 }

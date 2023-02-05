@@ -77,6 +77,7 @@ const fuse = new Fuse([], {
         weight: 0.5,
     }],
 })
+let nodeAncestries
 const getAllNodesStatement = db.prepare('SELECT id, parent_id, name FROM nodes ORDER BY id;')
 const updateFuse = () => {
     const nodes = getAllNodesStatement.all()
@@ -93,6 +94,10 @@ const updateFuse = () => {
     const root = nodes.find(n => n.parent_id === null)
     root.ancestry = root.name
     buildAncestry(root)
+    nodeAncestries = new Map()
+    for (const node of nodes) {
+        nodeAncestries.set(node.ancestry, node.id)
+    }
     fuse.setCollection(nodes)
 }
 updateFuse()
@@ -104,6 +109,13 @@ export const searchNodes = (query) => {
     }
     const results = fuse.search(query, { limit: 25 })
     return results.map(result => result.item)
+}
+
+export const resolveNode = (idOrAncestry) => {
+    if (/^\d+$/.test(idOrAncestry)) {
+        return parseInt(idOrAncestry)
+    }
+    return nodeAncestries.get(idOrAncestry)
 }
 
 const deleteNodeStatement = db.prepare('DELETE FROM nodes WHERE id = ?;')
@@ -131,7 +143,7 @@ export const createSubscription = (nodeId, userId) => {
         createSubscriptionStatement.run(nodeId, userId)
         return true
     } catch (e) {
-        if (e instanceof sqlite.SqliteError && e.code === 'SQLITE_CONSTRAINT') {
+        if (e instanceof sqlite.SqliteError && e.code === 'SQLITE_CONSTRAINT_UNIQUE') {
             return false
         }
         throw e
@@ -147,6 +159,6 @@ export const deleteSubscription = (nodeId, userId) => {
 const getSubscriptionsStatement = db.prepare(`
     WITH RECURSIVE n(i) AS (
         SELECT ? UNION ALL SELECT parent_id FROM nodes, n WHERE id = i
-    ) SELECT user_id FROM subscriptions, n WHERE node_id = i;
+    ) SELECT DISTINCT user_id FROM subscriptions, n WHERE node_id = i;
 `)
 export const getSubscriptions = (nodeId) => getSubscriptionsStatement.all(nodeId).map(row => row.user_id)

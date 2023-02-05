@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js'
-import { createSubscription, getNode, formatAncestry } from '../db.js'
+import { createSubscription, getNode, formatAncestry, resolveNode } from '../db.js'
 
 export const data = new SlashCommandBuilder()
     .setName('subscribe')
@@ -17,7 +17,7 @@ export const data = new SlashCommandBuilder()
     )
 
 export const execute = async (interaction) => {
-    const nodeId = parseInt(interaction.options.getString('node'))
+    const nodeId = resolveNode(interaction.options.getString('node'))
     const user = interaction.options.getUser('user') ?? interaction.user
     const result = await createSubscription(nodeId, user.id)
     const ancestry = formatAncestry(getNode(nodeId), true)

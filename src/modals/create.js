@@ -2,8 +2,8 @@ import { createNode, formatAncestry, getNode } from '../db.js'
 
 export const name = 'create'
 
-export const execute = async (interaction, metadata) => {
-    const { parentId, kind, significant } = JSON.parse(metadata)
+export const execute = async (interaction, meta) => {
+    const { parentId, kind, significant } = meta
     if (parentId === null) {
         await interaction.reply({
             content: ':x: Invalid parent',

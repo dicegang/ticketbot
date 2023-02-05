@@ -2,7 +2,7 @@ import { TextInputStyle, ModalBuilder, TextInputBuilder, ActionRowBuilder, Butto
 import { formatAncestry } from './db.js'
 
 export const makeModal = (node) => new ModalBuilder()
-    .setCustomId('ticket:' + node.id)
+    .setCustomId(JSON.stringify({ type: 'ticket', nodeId: node.id }))
     .setTitle('Create a ticket')
     .addComponents(
         new ActionRowBuilder().addComponents(

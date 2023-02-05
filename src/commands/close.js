@@ -1,5 +1,4 @@
 import { SlashCommandBuilder } from 'discord.js'
-import { closeTicket } from '../ticket.js'
 import { getTicket } from '../db.js'
 
 export const data = new SlashCommandBuilder()
@@ -18,6 +17,6 @@ export const execute = async (interaction) => {
             content: ':white_check_mark: Closing ticket...',
             ephemeral: true,
         })
-        await closeTicket(interaction.channel)
+        await interaction.channel.setArchived(true)
     }
 }

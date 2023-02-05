@@ -1,4 +1,5 @@
 import { SlashCommandBuilder, PermissionFlagsBits, TextInputBuilder, ModalBuilder, TextInputStyle, ActionRowBuilder } from 'discord.js'
+import { resolveNode } from '../db.js'
 
 export const data = new SlashCommandBuilder()
     .setName('create')
@@ -25,13 +26,12 @@ export const data = new SlashCommandBuilder()
     )
 
 export const execute = async (interaction) => {
-    const parentId = parseInt(interaction.options.getString('parent'))
+    const parentId = resolveNode(interaction.options.getString('parent'))
     const kind = interaction.options.getString('kind')
     const significant = interaction.options.getBoolean('significant') ?? true
-    // TODO: use modal session id
-    const metadata = JSON.stringify({ parentId, kind, significant })
     const modal = new ModalBuilder()
-        .setCustomId('create:' + metadata)
+        // TODO: use modal session id
+        .setCustomId(JSON.stringify({ type: 'create', parentId, kind, significant }))
         .setTitle('Create a node')
         .addComponents(
             new ActionRowBuilder().addComponents(

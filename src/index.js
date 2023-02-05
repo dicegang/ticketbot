@@ -34,9 +34,9 @@ client.on(Events.InteractionCreate, async (interaction) => {
         } else if (interaction.isStringSelectMenu()) {
             await continueMenu(interaction, parseInt(interaction.values[0]))
         } else if (interaction.isModalSubmit()) {
-            const [, type, value] = interaction.customId.match(/^(.*?):(.*)$/)
-            const modal = modals.get(type)
-            await modal.execute(interaction, value)
+            const meta = JSON.parse(interaction.customId)
+            const modal = modals.get(meta.type)
+            await modal.execute(interaction, meta)
         }
     } catch (e) {
         console.error(e)
