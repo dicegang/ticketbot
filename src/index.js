@@ -47,24 +47,17 @@ client.on(Events.InteractionCreate, async (interaction) => {
     }
 })
 
-client.on(Events.ThreadUpdate, async (_oldThread, newThread) => {
-    // re-lock manually unlocked ticket threads
-    if (!getTicket(newThread.id)) {
-        return
-    }
-    if (!newThread.archived && !newThread.locked) {
-        await newThread.setLocked(true)
-    }
-})
-
 client.on(Events.ThreadMembersUpdate, async (_addedMembers, removedMembers, thread) => {
-    // archive ticket threads if user leaves
+    // archive and lock ticket threads if user leaves
     const ticket = getTicket(thread.id)
     if (!ticket) {
         return
     }
     if (removedMembers.has(ticket.user_id)) {
-        await thread.setArchived(true)
+        await thread.edit({
+            archived: true,
+            locked: true,
+        })
     }
 })
 

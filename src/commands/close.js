@@ -17,6 +17,9 @@ export const execute = async (interaction) => {
             content: ':white_check_mark: Closing ticket...',
             ephemeral: true,
         })
-        await interaction.channel.setArchived(true)
+        await interaction.channel.edit({
+            archived: true,
+            locked: true,
+        })
     }
 }

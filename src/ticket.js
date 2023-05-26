@@ -11,6 +11,7 @@ export const makeTicket = async ({ user, channel, description, node }) => {
         name,
         autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
         type: ChannelType.PrivateThread,
+        invitable: false,
     })
     updateTicket(ticketId, thread.id)
 
@@ -28,6 +29,6 @@ export const makeTicket = async ({ user, channel, description, node }) => {
         content += `\nSubscribers: ${subscribers.map(sub => `<@${sub}>`).join(' ')}`
     }
     await thread.send({ content, embeds: [embed] })
-    await thread.setLocked(true)
+
     return thread
 }
