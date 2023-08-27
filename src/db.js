@@ -143,7 +143,7 @@ export const createSubscription = (nodeId, userId) => {
         createSubscriptionStatement.run(nodeId, userId)
         return true
     } catch (e) {
-        if (e instanceof sqlite.SqliteError && e.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+        if (e instanceof sqlite.SqliteError && e.code === 'SQLITE_CONSTRAINT_PRIMARYKEY') {
             return false
         }
         throw e
